@@ -26,6 +26,7 @@ def update_task(task_id : str , task :Task ) -> TaskInDB:
         return_document = True
     )
     if updated_task:
+        updated_task["_id"] = str(updated_task["_id"])
         return TaskInDB(**updated_task)
     return None
 

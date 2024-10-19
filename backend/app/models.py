@@ -10,6 +10,10 @@ class Task(BaseModel):
 class TaskInDB(Task):
     id : Optional[str] = Field(defaut = None , alias = "_id")
     
+class TaskInput(BaseModel):
+    title: str
+    description: str
+    
     
 class Config:
     json_encoders = {
