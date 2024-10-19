@@ -16,6 +16,8 @@ const TodoList: React.FC = () => {
     const [editedDescription, setEditedDescription] = useState<string>('');
     const [aiResponse, setAiResponse] = useState<string>('');
     const [, setSelectedTaskId] = useState<string | null>(null);
+    const [newTaskTitle, setNewTaskTitle] = useState<string>(''); // State for new task title
+    const [newTaskDescription, setNewTaskDescription] = useState<string>(''); // State for new task description
 
     // Fetch tasks from the FastAPI backend
     useEffect(() => {
@@ -105,12 +107,53 @@ const TodoList: React.FC = () => {
             console.error('Error updating task:', error);
         }
     };
+    const addTask = async () => {
+        if (!newTaskTitle || !newTaskDescription) {
+            alert("Please enter both title and description");
+            return;
+        }
 
-    
+        try {
+            const response = await axios.post('http://localhost:8000/tasks', {
+                title: newTaskTitle,
+                description: newTaskDescription,
+                completed: false,
+            });
+            setTasks([...tasks, response.data]); // Add the new task to the list
+            setNewTaskTitle(''); // Reset the input field
+            setNewTaskDescription(''); // Reset the input field
+        } catch (error) {
+            console.error('Error adding task:', error);
+        }
+    };
+
     return (
         <div className="flex">
             {/* Left side with task list */}
             <div className="w-1/2">
+                {/* Add Task Input */}
+                <div className="mb-6">
+                    <input
+                        type="text"
+                        placeholder="New Task Title"
+                        value={newTaskTitle}
+                        onChange={(e) => setNewTaskTitle(e.target.value)}
+                        className="mb-2 text-gray-900 dark:text-white block w-full p-2 rounded-lg bg-gray-100 dark:bg-gray-700"
+                    />
+                    <textarea
+                        placeholder="New Task Description"
+                        value={newTaskDescription}
+                        onChange={(e) => setNewTaskDescription(e.target.value)}
+                        className="mb-2 text-gray-900 dark:text-white block w-full p-2 rounded-lg bg-gray-100 dark:bg-gray-700"
+                    />
+                    <button
+                        onClick={addTask}
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    >
+                        Add Task
+                    </button>
+                </div>
+
                 {tasks.map((task) => (
                     <div key={task._id} className="max-w-sm p-6 bg-white border border-gray-200 rounded-lg shadow dark:bg-gray-800 dark:border-gray-700 mb-4">
                         {editTaskId === task._id ? (
@@ -179,21 +222,19 @@ const TodoList: React.FC = () => {
                 <div className="mb-6">
                     <textarea
                         className="w-full rounded-2xl placeholder:text-xs px-6 py-4 bg-gray-100 dark:bg-gray-700 text-gray-900 dark:text-white"
-                        placeholder="AI Response will appear here..."
-                        value={aiResponse || ''}
-                        rows={8}
+                        placeholder="AI Response"
+                        value={aiResponse}
                         readOnly
                     />
+                    <button
+                        onClick={downloadPdf}
+                        className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-blue-700 rounded-lg hover:bg-blue-800 dark:bg-blue-600 dark:hover:bg-blue-700"
+                    >
+                        Download PDF
+                    </button>
                 </div>
-                {/* Download PDF Button */}
-                <button
-                    className="inline-flex items-center px-3 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 focus:ring-4 focus:outline-none focus:ring-green-300 dark:bg-green-500 dark:hover:bg-green-600 dark:focus:ring-green-700"
-                    onClick={downloadPdf}
-                >
-                    Download as PDF
-                </button>
             </div>
         </div>
-    );    };
+    );   };
 
 export default TodoList;

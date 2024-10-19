@@ -9,7 +9,6 @@ const App: React.FC = () => {
             <div className="rounded shadow p-6 m-4 w-full ">
                 <Heading/>
                 <TodoList />
-                <TaskList/>
             </div>
         </div>
     );
