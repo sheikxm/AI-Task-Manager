@@ -11,17 +11,18 @@ def create_task(task : Task) -> TaskInDB:
 
 def get_tasks() ->List[TaskInDB]:
     tasks = tasks_collection.find()
-    return[TaskInDB(**task) for task in tasks]
+    return [TaskInDB(**{**task, "_id": str(task["_id"])}) for task in tasks]
 
 def get_task(task_id : str) -> TaskInDB:
-    task = tasks_collection.find_one({"_id" : objectId(task_id)})
+    task = tasks_collection.find_one({"_id" : ObjectId(task_id)})
     if task:
+        task["_id"] = str(task["_id"])
         return TaskInDB(**task)
     return None
 def update_task(task_id : str , task :Task ) -> TaskInDB:
     updated_task = tasks_collection.find_one_and_update(
-        {"_id" : objectId(task_id)},
-        {"$set" : task.dist()},
+        {"_id" : ObjectId(task_id)},
+        {"$set" : task.dict()},
         return_document = True
     )
     if updated_task:
@@ -29,5 +30,5 @@ def update_task(task_id : str , task :Task ) -> TaskInDB:
     return None
 
 def delete_task( task_id :str ) ->bool:
-    result = tasks_collection.delete_one({"_id_": objectId(task_id)})
-    return result.deleted_count >0
+   result = tasks_collection.delete_one({"_id": ObjectId(task_id)})  # Fixed "_id_" typo
+   return result.deleted_count > 0
